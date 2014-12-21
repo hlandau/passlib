@@ -45,7 +45,6 @@ func (c *sha2Crypter) Verify(password, hash string) (newHash string, err error) 
   _, newHash, salt, rounds, err := c.hash(password, hash)
   if err == nil && hash != newHash {
     err = ErrIncorrectPassword
-    fmt.Printf("%#v != %#v\n", hash, newHash)
   }
 
   newHash = ""

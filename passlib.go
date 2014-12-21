@@ -3,7 +3,7 @@ import "fmt"
 import "github.com/hlandau/passlib/hash"
 
 var ErrNoSupportedScheme = fmt.Errorf("no supported scheme found")
-var DefaultSchemes = []hash.Scheme{ hash.SHA256Crypter }
+var DefaultSchemes = []hash.Scheme{ hash.ScryptSHA256Crypter, hash.SHA256Crypter }
 
 type Context struct {
   // Slice of schemes to use, most preferred first.
