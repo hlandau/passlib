@@ -18,3 +18,5 @@ func TestPasslib(t *testing.T) {
     t.Fatalf("got nil error with wrong password")
   }
 }
+
+// © 2014 Hugo Landau <hlandau@devever.net>  BSD License

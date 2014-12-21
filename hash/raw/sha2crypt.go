@@ -285,3 +285,6 @@ func EncodeBase64(b []byte) string {
   s := string(o)
   return s[0:len(b)*4/3 - (len(b)%4) + 1]
 }
+
+// © 2008-2012 Assurance Technologies LLC.  (Python passlib)  BSD License
+// © 2014 Hugo Landau <hlandau@devever.net>  BSD License

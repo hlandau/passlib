@@ -110,3 +110,6 @@ func NeedsUpdate(stub string) bool {
 func Verify(password, hash string) (newHash string, err error) {
   return DefaultContext.Verify(password, hash)
 }
+
+// © 2008-2012 Assurance Technologies LLC.  (Python passlib)  BSD License
+// © 2014 Hugo Landau <hlandau@devever.net>  BSD License

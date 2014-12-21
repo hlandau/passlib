@@ -225,3 +225,5 @@ func TestSHA512Crypt(t *testing.T) {
     }
   }
 }
+
+// © 2014 Hugo Landau <hlandau@devever.net>  BSD License

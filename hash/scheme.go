@@ -31,3 +31,5 @@ type Scheme interface {
   // Make a stub with the configured defaults. The salt is generated randomly.
   MakeStub() (string, error)
 }
+
+// © 2014 Hugo Landau <hlandau@devever.net>  BSD License

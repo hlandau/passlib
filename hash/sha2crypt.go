@@ -127,3 +127,5 @@ func (c *sha2Crypter) MakeStub() (string, error) {
 }
 
 var ErrIncorrectPassword = fmt.Errorf("incorrect password")
+
+// © 2014 Hugo Landau <hlandau@devever.net>  BSD License
