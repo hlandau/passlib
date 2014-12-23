@@ -26,7 +26,7 @@ type Context struct {
 	// If left uninitialized, a sensible default set of schemes will be used.
 	//
 	// An upgrade hash (see the newHash return value of the Verify method of the
-	// hash.Crypter interface) will be issued whenever a password is validated
+	// abstract.Scheme interface) will be issued whenever a password is validated
 	// using a scheme which is not the first scheme in this slice.
 	Schemes []abstract.Scheme
 }

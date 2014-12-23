@@ -14,20 +14,20 @@ var SHA256Crypter abstract.Scheme
 
 func init() {
 	SHA256Crypter = NewSHA256(
-    raw.RecommendedN,
-    raw.Recommendedr,
-    raw.Recommendedp,
-  )
+		raw.RecommendedN,
+		raw.Recommendedr,
+		raw.Recommendedp,
+	)
 }
 
 // Returns an implementation of Scheme implementing scrypt-sha256
 // with the specified parameters.
 func NewSHA256(N, r, p int) abstract.Scheme {
-  return &scryptSHA256Crypter{
-    nN: N,
-    r:  r,
-    p:  p,
-  }
+	return &scryptSHA256Crypter{
+		nN: N,
+		r:  r,
+		p:  p,
+	}
 }
 
 type scryptSHA256Crypter struct {
