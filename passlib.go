@@ -1,3 +1,5 @@
+// Package passlib provides a simple password hashing and verification
+// interface abstracting multiple password hashing schemes.
 package passlib
 
 import "fmt"
