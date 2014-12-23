@@ -208,7 +208,7 @@ var tests512 = []test{
 func TestSHA256Crypt(t *testing.T) {
 	for i, tst := range tests {
 		fmt.Printf("%d\n", i)
-		out := SHA256Crypt(tst.password, tst.salt, tst.rounds)
+		out := Crypt256(tst.password, tst.salt, tst.rounds)
 		if out != tst.output {
 			t.Errorf("mismatch:\n  got: %#v\n  expected: %#v\n  password: %#v\n  salt: %#v\n  rounds: %#v\n",
 				out, tst.output, tst.password, tst.salt, tst.rounds)
@@ -219,7 +219,7 @@ func TestSHA256Crypt(t *testing.T) {
 func TestSHA512Crypt(t *testing.T) {
 	for i, tst := range tests512 {
 		fmt.Printf("%d\n", i)
-		out := SHA512Crypt(tst.password, tst.salt, tst.rounds)
+		out := Crypt512(tst.password, tst.salt, tst.rounds)
 		if out != tst.output {
 			t.Errorf("mismatch:\n  got: %#v\n  expected: %#v\n  password: %#v\n  salt: %#v\n  rounds: %#v\n",
 				out, tst.output, tst.password, tst.salt, tst.rounds)

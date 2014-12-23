@@ -2,20 +2,23 @@
 // interface abstracting multiple password hashing schemes.
 package passlib
 
-import "fmt"
-import "github.com/hlandau/passlib/hash"
+import "github.com/hlandau/passlib/abstract"
+import "github.com/hlandau/passlib/hash/scrypt"
+import "github.com/hlandau/passlib/hash/sha2crypt"
 
-// Returned if a password cannot be verified because the hash specified
-// is of a type not supported by any configured scheme.
-var ErrNoSupportedScheme = fmt.Errorf("no supported scheme found")
+// Convenience export from the abstract subpackage.
+var ErrUnsupportedScheme = abstract.ErrUnsupportedScheme
+
+// Convenience export from the abstract subpackage.
+var ErrInvalidPassword = abstract.ErrInvalidPassword
 
 // The default schemes, most preferred first. The first scheme will be used to
 // hash passwords, and any of the schemes may be used to verify existing
 // passwords. The contents of this value may change with subsequent releases.
-var DefaultSchemes = []hash.Scheme{
-  hash.ScryptSHA256Crypter,
-  hash.SHA256Crypter,
-  hash.SHA512Crypter}
+var DefaultSchemes = []abstract.Scheme{
+	scrypt.SHA256Crypter,
+	sha2crypt.Crypter256,
+	sha2crypt.Crypter512}
 
 type Context struct {
 	// Slice of schemes to use, most preferred first.
@@ -25,7 +28,7 @@ type Context struct {
 	// An upgrade hash (see the newHash return value of the Verify method of the
 	// hash.Crypter interface) will be issued whenever a password is validated
 	// using a scheme which is not the first scheme in this slice.
-	Schemes []hash.Scheme
+	Schemes []abstract.Scheme
 }
 
 func (ctx *Context) init() {
@@ -68,7 +71,7 @@ func (ctx *Context) Hash(password, stub string) (hash string, err error) {
 		}
 	}
 
-	err = ErrNoSupportedScheme
+	err = ErrUnsupportedScheme
 	return
 }
 
@@ -99,7 +102,7 @@ func (ctx *Context) Verify(password, hash string) (newHash string, err error) {
 		}
 	}
 
-	err = ErrNoSupportedScheme
+	err = ErrUnsupportedScheme
 	return
 }
 

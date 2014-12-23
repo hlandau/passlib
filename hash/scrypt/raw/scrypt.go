@@ -6,9 +6,14 @@ import "strings"
 import "strconv"
 import "fmt"
 
-const ScryptSHA256RecommendedN = 16384
-const ScryptSHA256Recommendedr = 8
-const ScryptSHA256Recommendedp = 1
+// The current recommended N value for interactive logins.
+const RecommendedN = 16384
+
+// The current recommended r value for interactive logins.
+const Recommendedr = 8
+
+// The current recommended p value for interactive logins.
+const Recommendedp = 1
 
 // Wrapper for golang.org/x/crypto/scrypt implementing a sensible
 // modular crypt interface.
@@ -33,7 +38,17 @@ func ScryptSHA256(password string, salt []byte, N, r, p int) string {
 	return fmt.Sprintf("$s2$%d$%d$%d$%s$%s", N, r, p, sstr, hstr)
 }
 
-func ParseScrypt(stub string) (salt, hash []byte, N, r, p int, err error) {
+// Indicates that a password hash or stub is invalid.
+var ErrInvalidStub = fmt.Errorf("invalid scrypt password stub")
+
+// Parses an scrypt modular hash or stub string.
+//
+// The format is as follows:
+//
+//   $s2$N$r$p$salt$hash    // hash
+//   $s2$N$r$p$salt         // stub
+//
+func Parse(stub string) (salt, hash []byte, N, r, p int, err error) {
 	if len(stub) < 10 || !strings.HasPrefix(stub, "$s2$") {
 		err = ErrInvalidStub
 		return

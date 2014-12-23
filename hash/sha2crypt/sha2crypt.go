@@ -1,18 +1,35 @@
-package hash
+package sha2crypt
 
 import "fmt"
 import "crypto/rand"
-import "github.com/hlandau/passlib/hash/raw"
+import "github.com/hlandau/passlib/hash/sha2crypt/raw"
+import "github.com/hlandau/passlib/abstract"
 
 // An implementation of Scheme performing sha256-crypt.
-var SHA256Crypter Scheme
+//
+// The number of rounds is raw.RecommendedRounds.
+var Crypter256 abstract.Scheme
 
 // An implementation of Scheme performing sha512-crypt.
-var SHA512Crypter Scheme
+//
+// The number of rounds is raw.RecommendedRounds.
+var Crypter512 abstract.Scheme
 
 func init() {
-	SHA256Crypter = &sha2Crypter{false, raw.SHA2CryptRecommendedRounds}
-	SHA512Crypter = &sha2Crypter{true, raw.SHA2CryptRecommendedRounds}
+	Crypter256 = NewCrypter256(raw.RecommendedRounds)
+	Crypter512 = NewCrypter512(raw.RecommendedRounds)
+}
+
+// Returns a Scheme implementing sha256-crypt using the number of rounds
+// specified.
+func NewCrypter256(rounds int) abstract.Scheme {
+  return &sha2Crypter{false, rounds}
+}
+
+// Returns a Scheme implementing sha512-crypt using the number of rounds
+// specified.
+func NewCrypter512(rounds int) abstract.Scheme {
+  return &sha2Crypter{true, rounds}
 }
 
 type sha2Crypter struct {
@@ -21,9 +38,9 @@ type sha2Crypter struct {
 }
 
 // Changes the default rounds for the crypter. Be warned that this
-// is a global setting. The default default value is SHA2CryptRecommendedRounds.
+// is a global setting. The default default value is RecommendedRounds.
 func (c *sha2Crypter) SetRounds(rounds int) error {
-	if rounds < raw.SHA2CryptMinimumRounds || rounds > raw.SHA2CryptMaximumRounds {
+	if rounds < raw.MinimumRounds || rounds > raw.MaximumRounds {
 		return raw.ErrInvalidRounds
 	}
 
@@ -46,7 +63,7 @@ func (c *sha2Crypter) Hash(password, stub string) (string, error) {
 func (c *sha2Crypter) Verify(password, hash string) (newHash string, err error) {
 	_, newHash, salt, rounds, err := c.hash(password, hash)
 	if err == nil && hash != newHash {
-		err = ErrIncorrectPassword
+		err = abstract.ErrInvalidPassword
 	}
 
 	newHash = ""
@@ -58,7 +75,7 @@ func (c *sha2Crypter) Verify(password, hash string) (newHash string, err error) 
 }
 
 func (c *sha2Crypter) NeedsUpdate(stub string) bool {
-	_, salt, _, rounds, err := raw.ParseSHA256Crypt(stub)
+	_, salt, _, rounds, err := raw.Parse(stub)
 	if err != nil {
 		return false // ...
 	}
@@ -89,21 +106,23 @@ func (c *sha2Crypter) getUpgradeHash(password, salt string, rounds int) string {
 	return newHash
 }
 
+var errInvalidStub = fmt.Errorf("invalid sha2 password stub")
+
 func (c *sha2Crypter) hash(password, stub string) (oldHash, newHash, salt string, rounds int, err error) {
-	isSHA512, salt, oldHash, rounds, err := raw.ParseSHA256Crypt(stub)
+	isSHA512, salt, oldHash, rounds, err := raw.Parse(stub)
 	if err != nil {
 		return "", "", "", 0, err
 	}
 
 	if isSHA512 != c.sha512 {
-		return "", "", "", 0, raw.ErrInvalidStub
+		return "", "", "", 0, errInvalidStub
 	}
 
 	if c.sha512 {
-		return oldHash, raw.SHA512Crypt(password, salt, rounds), salt, rounds, nil
+		return oldHash, raw.Crypt512(password, salt, rounds), salt, rounds, nil
 	}
 
-	return oldHash, raw.SHA256Crypt(password, salt, rounds), salt, rounds, nil
+	return oldHash, raw.Crypt256(password, salt, rounds), salt, rounds, nil
 }
 
 func (c *sha2Crypter) MakeStub() (string, error) {
@@ -120,13 +139,11 @@ func (c *sha2Crypter) MakeStub() (string, error) {
 
 	salt := raw.EncodeBase64(buf)[0:16]
 
-	if c.rounds == raw.SHA2CryptDefaultRounds {
+	if c.rounds == raw.DefaultRounds {
 		return fmt.Sprintf("$%s$%s", ch, salt), nil
 	}
 
 	return fmt.Sprintf("$%s$rounds=%d$%s", ch, c.rounds, salt), nil
 }
-
-var ErrIncorrectPassword = fmt.Errorf("incorrect password")
 
 // © 2014 Hugo Landau <hlandau@devever.net>  BSD License

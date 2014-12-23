@@ -1,5 +1,10 @@
-package hash
+package abstract
 
+// The Scheme interface provides an abstract interface to an implementation
+// of a particular password hashing scheme. The Scheme generates password
+// hashes from passwords, verifies passwords using password hashes, randomly
+// generates new stubs and can determines whether it recognises a given
+// stub or hash. It may also decide to issue upgrades.
 type Scheme interface {
 	// Hashes a plaintext UTF-8 password using a modular crypt stub. Returns the
 	// hashed password in modular crypt format.
@@ -31,5 +36,3 @@ type Scheme interface {
 	// Make a stub with the configured defaults. The salt is generated randomly.
 	MakeStub() (string, error)
 }
-
-// © 2014 Hugo Landau <hlandau@devever.net>  BSD License

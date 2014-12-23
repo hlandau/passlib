@@ -1,20 +1,33 @@
-package hash
+package scrypt
 
 import "fmt"
 import "strings"
 import "crypto/rand"
 import "encoding/base64"
-import "github.com/hlandau/passlib/hash/raw"
+import "github.com/hlandau/passlib/hash/scrypt/raw"
+import "github.com/hlandau/passlib/abstract"
 
 // An implementation of Scheme performing scrypt-sha256.
-var ScryptSHA256Crypter Scheme
+//
+// Uses the recommended values for N,r,p defined in raw.
+var SHA256Crypter abstract.Scheme
 
 func init() {
-	ScryptSHA256Crypter = &scryptSHA256Crypter{
-		nN: raw.ScryptSHA256RecommendedN,
-		r:  raw.ScryptSHA256Recommendedr,
-		p:  raw.ScryptSHA256Recommendedp,
-	}
+	SHA256Crypter = NewSHA256(
+    raw.RecommendedN,
+    raw.Recommendedr,
+    raw.Recommendedp,
+  )
+}
+
+// Returns an implementation of Scheme implementing scrypt-sha256
+// with the specified parameters.
+func NewSHA256(N, r, p int) abstract.Scheme {
+  return &scryptSHA256Crypter{
+    nN: N,
+    r:  r,
+    p:  p,
+  }
 }
 
 type scryptSHA256Crypter struct {
@@ -40,7 +53,7 @@ func (c *scryptSHA256Crypter) Hash(password, stub string) (string, error) {
 func (c *scryptSHA256Crypter) Verify(password, hash string) (newHash string, err error) {
 	_, newHash, salt, N, r, p, err := c.hash(password, hash)
 	if err == nil && hash != newHash {
-		err = ErrIncorrectPassword
+		err = abstract.ErrInvalidPassword
 	}
 
 	newHash = ""
@@ -52,7 +65,7 @@ func (c *scryptSHA256Crypter) Verify(password, hash string) (newHash string, err
 }
 
 func (c *scryptSHA256Crypter) NeedsUpdate(stub string) bool {
-	salt, _, N, r, p, err := raw.ParseScrypt(stub)
+	salt, _, N, r, p, err := raw.Parse(stub)
 	if err != nil {
 		return false // ...
 	}
@@ -84,7 +97,7 @@ func (c *scryptSHA256Crypter) getUpgradeHash(password string, salt []byte, N, r,
 }
 
 func (c *scryptSHA256Crypter) hash(password, stub string) (oldHashRaw []byte, newHash string, salt []byte, N, r, p int, err error) {
-	salt, oldHashRaw, N, r, p, err = raw.ParseScrypt(stub)
+	salt, oldHashRaw, N, r, p, err = raw.Parse(stub)
 	if err != nil {
 		return
 	}
