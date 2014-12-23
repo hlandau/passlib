@@ -3,8 +3,17 @@ package passlib
 import "fmt"
 import "github.com/hlandau/passlib/hash"
 
+// Returned if a password cannot be verified because the hash specified
+// is of a type not supported by any configured scheme.
 var ErrNoSupportedScheme = fmt.Errorf("no supported scheme found")
-var DefaultSchemes = []hash.Scheme{hash.ScryptSHA256Crypter, hash.SHA256Crypter}
+
+// The default schemes, most preferred first. The first scheme will be used to
+// hash passwords, and any of the schemes may be used to verify existing
+// passwords. The contents of this value may change with subsequent releases.
+var DefaultSchemes = []hash.Scheme{
+  hash.ScryptSHA256Crypter,
+  hash.SHA256Crypter,
+  hash.SHA512Crypter}
 
 type Context struct {
 	// Slice of schemes to use, most preferred first.
@@ -23,18 +32,24 @@ func (ctx *Context) init() {
 	}
 }
 
+// Randomly generates a new password stub for the preferred password hashing
+// scheme of the context.
 func (ctx *Context) MakeStub() (string, error) {
 	ctx.init()
 
 	return ctx.Schemes[0].MakeStub()
 }
 
-// Hashes a password. The input password should be UTF-8 plaintext.
+// Hashes a UTF-8 plaintext password using the context and produces a password hash.
 //
-// If stub is "", one is generated automatically; you should specify stub as ""
-// in almost all cases.
+// If stub is "", one is generated automaticaly for the preferred password hashing
+// scheme; you should specify stub as "" in almost all cases.
 //
-// The output is in modular crypt format.
+// The provided or randomly generated stub is used to deterministically hash
+// the password. The returned hash is in modular crypt format.
+//
+// If the context has not been specifically configured, a sensible default policy
+// is used. See the fields of Context.
 func (ctx *Context) Hash(password, stub string) (hash string, err error) {
 	ctx.init()
 
@@ -55,14 +70,17 @@ func (ctx *Context) Hash(password, stub string) (hash string, err error) {
 	return
 }
 
-// Tries to verify a password using a hash.
+// Verifies a UTF-8 plaintext password using a previously derived password hash
+// and the default context. Returns nil err only if the password is valid.
 //
-// The input password should be UTF-8 plaintext.
+// If the hash is determined to be deprecated based on the context policy, and
+// the password is valid, the password is hashed using the preferred password
+// hashing scheme and returned in newHash. You should use this to upgrade any
+// stored password hash in your database.
+//
+// newHash is empty if the password was not valid or if no upgrade is required.
 //
 // You should treat any non-nil err as a password verification error.
-//
-// If the newHash return value is not an empty string, it is a more secure hash
-// and you should replace the value in the database with that value.
 func (ctx *Context) Verify(password, hash string) (newHash string, err error) {
 	ctx.init()
 
@@ -83,6 +101,8 @@ func (ctx *Context) Verify(password, hash string) (newHash string, err error) {
 	return
 }
 
+// Determines whether a stub or hash needs updating according to the policy of
+// the context.
 func (ctx *Context) NeedsUpdate(stub string) bool {
 	ctx.init()
 
@@ -95,21 +115,37 @@ func (ctx *Context) NeedsUpdate(stub string) bool {
 	return false
 }
 
+// The default context, which uses sensible defaults. Most users should not
+// reconfigure this. The defaults may change over time, so you may wish
+// to reconfigure the context or use a custom context if you want precise
+// control over the hashes used.
 var DefaultContext Context
 
-// Calculates a hash using the default context.
+// Hashes a UTF-8 plaintext password using the default context and produces a
+// password hash. Chooses the preferred password hashing scheme based on the
+// configured policy. The default policy is sensible.
 func Hash(password string) (hash string, err error) {
 	return DefaultContext.Hash(password, "")
 }
 
-// Uses the default context to determine whether a stub needs updating.
-func NeedsUpdate(stub string) bool {
-	return DefaultContext.NeedsUpdate(stub)
-}
-
-// Verifies a password using the default context.
+// Verifies a UTF-8 plaintext password using a previously derived password hash
+// and the default context. Returns nil err only if the password is valid.
+//
+// If the hash is determined to be deprecated based on policy, and the password
+// is valid, the password is hashed using the preferred password hashing scheme
+// and returned in newHash. You should use this to upgrade any stored password
+// hash in your database.
+//
+// newHash is empty if the password was invalid or no upgrade is required.
+//
+// You should treat any non-nil err as a password verification error.
 func Verify(password, hash string) (newHash string, err error) {
 	return DefaultContext.Verify(password, hash)
+}
+
+// Uses the default context to determine whether a stub or hash needs updating.
+func NeedsUpdate(stub string) bool {
+	return DefaultContext.NeedsUpdate(stub)
 }
 
 // © 2008-2012 Assurance Technologies LLC.  (Python passlib)  BSD License
