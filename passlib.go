@@ -1,5 +1,8 @@
 // Package passlib provides a simple password hashing and verification
 // interface abstracting multiple password hashing schemes.
+//
+// Most people need concern themselves only with the functions Hash
+// and Verify, which uses the default context and sensible defaults.
 package passlib
 
 import "github.com/hlandau/passlib/abstract"
