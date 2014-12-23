@@ -62,7 +62,7 @@ func (c *sha2Crypter) Hash(password, stub string) (string, error) {
 
 func (c *sha2Crypter) Verify(password, hash string) (newHash string, err error) {
 	_, newHash, salt, rounds, err := c.hash(password, hash)
-	if err == nil && hash != newHash {
+	if err == nil && !abstract.SecureCompare(hash, newHash) {
 		err = abstract.ErrInvalidPassword
 	}
 

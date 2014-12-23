@@ -52,7 +52,7 @@ func (c *scryptSHA256Crypter) Hash(password, stub string) (string, error) {
 
 func (c *scryptSHA256Crypter) Verify(password, hash string) (newHash string, err error) {
 	_, newHash, salt, N, r, p, err := c.hash(password, hash)
-	if err == nil && hash != newHash {
+	if err == nil && !abstract.SecureCompare(hash, newHash) {
 		err = abstract.ErrInvalidPassword
 	}
 
