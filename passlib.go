@@ -8,6 +8,13 @@ package passlib
 import "github.com/hlandau/passlib/abstract"
 import "github.com/hlandau/passlib/hash/scrypt"
 import "github.com/hlandau/passlib/hash/sha2crypt"
+import "expvar"
+
+var cHashCalls = expvar.NewInt("passlib.ctx.hashCalls")
+var cVerifyCalls = expvar.NewInt("passlib.ctx.verifyCalls")
+var cSuccessfulVerifyCalls = expvar.NewInt("passlib.ctx.successfulVerifyCalls")
+var cFailedVerifyCalls = expvar.NewInt("passlib.ctx.failedVerifyCalls")
+var cSuccessfulVerifyCallsWithUpgrade = expvar.NewInt("passlib.ctx.successfulVerifyCallsWithUpgrade")
 
 // Convenience export from the abstract subpackage.
 var ErrUnsupportedScheme = abstract.ErrUnsupportedScheme
@@ -60,6 +67,7 @@ func (ctx *Context) MakeStub() (string, error) {
 // is used. See the fields of Context.
 func (ctx *Context) Hash(password, stub string) (hash string, err error) {
 	ctx.init()
+	cHashCalls.Add(1)
 
 	if stub == "" {
 		stub, err = ctx.MakeStub()
@@ -91,14 +99,22 @@ func (ctx *Context) Hash(password, stub string) (hash string, err error) {
 // You should treat any non-nil err as a password verification error.
 func (ctx *Context) Verify(password, hash string) (newHash string, err error) {
 	ctx.init()
+	cVerifyCalls.Add(1)
 
 	for i, scheme := range ctx.Schemes {
 		if scheme.SupportsStub(hash) {
 			newHash, err = scheme.Verify(password, hash)
-			if err == nil && i != 0 {
-				// If the scheme is not the first scheme, rehash with the preferred
-				// scheme.
-				newHash, err = ctx.Hash(password, "")
+			if err == nil {
+				cSuccessfulVerifyCalls.Add(1)
+				if i != 0 {
+					cSuccessfulVerifyCallsWithUpgrade.Add(1)
+
+					// If the scheme is not the first scheme, rehash with the preferred
+					// scheme.
+					newHash, err = ctx.Hash(password, "")
+				}
+			} else {
+				cFailedVerifyCalls.Add(1)
 			}
 
 			return

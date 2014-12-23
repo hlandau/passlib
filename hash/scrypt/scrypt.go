@@ -1,11 +1,15 @@
 package scrypt
 
 import "fmt"
+import "expvar"
 import "strings"
 import "crypto/rand"
 import "encoding/base64"
 import "github.com/hlandau/passlib/hash/scrypt/raw"
 import "github.com/hlandau/passlib/abstract"
+
+var cScryptSHA256HashCalls = expvar.NewInt("passlib.scryptsha256.hashCalls")
+var cScryptSHA256VerifyCalls = expvar.NewInt("passlib.scryptsha256.verifyCalls")
 
 // An implementation of Scheme performing scrypt-sha256.
 //
@@ -46,11 +50,15 @@ func (c *scryptSHA256Crypter) SupportsStub(stub string) bool {
 }
 
 func (c *scryptSHA256Crypter) Hash(password, stub string) (string, error) {
+	cScryptSHA256HashCalls.Add(1)
+
 	_, newHash, _, _, _, _, err := c.hash(password, stub)
 	return newHash, err
 }
 
 func (c *scryptSHA256Crypter) Verify(password, hash string) (newHash string, err error) {
+	cScryptSHA256VerifyCalls.Add(1)
+
 	_, newHash, salt, N, r, p, err := c.hash(password, hash)
 	if err == nil && !abstract.SecureCompare(hash, newHash) {
 		err = abstract.ErrInvalidPassword

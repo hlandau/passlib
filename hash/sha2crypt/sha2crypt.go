@@ -1,9 +1,13 @@
 package sha2crypt
 
 import "fmt"
+import "expvar"
 import "crypto/rand"
 import "github.com/hlandau/passlib/hash/sha2crypt/raw"
 import "github.com/hlandau/passlib/abstract"
+
+var cSHA2CryptHashCalls = expvar.NewInt("passlib.sha2crypt.hashCalls")
+var cSHA2CryptVerifyCalls = expvar.NewInt("passlib.sha2crypt.verifyCalls")
 
 // An implementation of Scheme performing sha256-crypt.
 //
@@ -56,11 +60,15 @@ func (c *sha2Crypter) SupportsStub(stub string) bool {
 }
 
 func (c *sha2Crypter) Hash(password, stub string) (string, error) {
+	cSHA2CryptHashCalls.Add(1)
+
 	_, newHash, _, _, err := c.hash(password, stub)
 	return newHash, err
 }
 
 func (c *sha2Crypter) Verify(password, hash string) (newHash string, err error) {
+	cSHA2CryptVerifyCalls.Add(1)
+
 	_, newHash, salt, rounds, err := c.hash(password, hash)
 	if err == nil && !abstract.SecureCompare(hash, newHash) {
 		err = abstract.ErrInvalidPassword
