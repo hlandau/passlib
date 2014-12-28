@@ -16,12 +16,6 @@ var cSuccessfulVerifyCalls = expvar.NewInt("passlib.ctx.successfulVerifyCalls")
 var cFailedVerifyCalls = expvar.NewInt("passlib.ctx.failedVerifyCalls")
 var cSuccessfulVerifyCallsWithUpgrade = expvar.NewInt("passlib.ctx.successfulVerifyCallsWithUpgrade")
 
-// Convenience export from the abstract subpackage.
-var ErrUnsupportedScheme = abstract.ErrUnsupportedScheme
-
-// Convenience export from the abstract subpackage.
-var ErrInvalidPassword = abstract.ErrInvalidPassword
-
 // The default schemes, most preferred first. The first scheme will be used to
 // hash passwords, and any of the schemes may be used to verify existing
 // passwords. The contents of this value may change with subsequent releases.
@@ -82,7 +76,7 @@ func (ctx *Context) Hash(password, stub string) (hash string, err error) {
 		}
 	}
 
-	err = ErrUnsupportedScheme
+	err = abstract.ErrUnsupportedScheme
 	return
 }
 
@@ -121,7 +115,7 @@ func (ctx *Context) Verify(password, hash string) (newHash string, err error) {
 		}
 	}
 
-	err = ErrUnsupportedScheme
+	err = abstract.ErrUnsupportedScheme
 	return
 }
 
