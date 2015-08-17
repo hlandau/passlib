@@ -8,13 +8,13 @@ package passlib
 import "github.com/hlandau/passlib/abstract"
 import "github.com/hlandau/passlib/hash/scrypt"
 import "github.com/hlandau/passlib/hash/sha2crypt"
-import "expvar"
+import "github.com/hlandau/degoutils/metric"
 
-var cHashCalls = expvar.NewInt("passlib.ctx.hashCalls")
-var cVerifyCalls = expvar.NewInt("passlib.ctx.verifyCalls")
-var cSuccessfulVerifyCalls = expvar.NewInt("passlib.ctx.successfulVerifyCalls")
-var cFailedVerifyCalls = expvar.NewInt("passlib.ctx.failedVerifyCalls")
-var cSuccessfulVerifyCallsWithUpgrade = expvar.NewInt("passlib.ctx.successfulVerifyCallsWithUpgrade")
+var cHashCalls = metric.NewCounter("passlib.ctx.hashCalls")
+var cVerifyCalls = metric.NewCounter("passlib.ctx.verifyCalls")
+var cSuccessfulVerifyCalls = metric.NewCounter("passlib.ctx.successfulVerifyCalls")
+var cFailedVerifyCalls = metric.NewCounter("passlib.ctx.failedVerifyCalls")
+var cSuccessfulVerifyCallsWithUpgrade = metric.NewCounter("passlib.ctx.successfulVerifyCallsWithUpgrade")
 
 // The default schemes, most preferred first. The first scheme will be used to
 // hash passwords, and any of the schemes may be used to verify existing
