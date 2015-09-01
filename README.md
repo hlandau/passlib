@@ -1,7 +1,7 @@
 passlib for go
 ==============
 
-[![GoDoc](https://godoc.org/github.com/hlandau/passlib?status.svg)](https://godoc.org/github.com/hlandau/passlib)
+[![GoDoc](https://godoc.org/gopkg.in/hlandau/passlib?status.svg)](https://godoc.org/github.com/hlandau/passlib)
 
 [Python's passlib](https://pythonhosted.org/passlib/) is quite an amazing
 library. I'm not sure there's a password library in existence with more thought
@@ -31,7 +31,7 @@ themselves with the functions `Hash` and `Verify`:
 
 Here's a rough skeleton of typical usage.
 
-    import "github.com/hlandau/passlib"
+    import "gopkg.in/hlandau/passlib.v1"
 
     func RegisterUser() {
       (...)

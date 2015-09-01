@@ -3,11 +3,11 @@
 //
 // Most people need concern themselves only with the functions Hash
 // and Verify, which uses the default context and sensible defaults.
-package passlib
+package passlib // import "gopkg.in/hlandau/passlib.v1"
 
-import "github.com/hlandau/passlib/abstract"
-import "github.com/hlandau/passlib/hash/scrypt"
-import "github.com/hlandau/passlib/hash/sha2crypt"
+import "gopkg.in/hlandau/passlib.v1/abstract"
+import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
+import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
 import "github.com/hlandau/degoutils/metric"
 
 var cHashCalls = metric.NewCounter("passlib.ctx.hashCalls")

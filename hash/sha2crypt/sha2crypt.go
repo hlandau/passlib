@@ -3,8 +3,8 @@ package sha2crypt
 import "fmt"
 import "expvar"
 import "crypto/rand"
-import "github.com/hlandau/passlib/hash/sha2crypt/raw"
-import "github.com/hlandau/passlib/abstract"
+import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt/raw"
+import "gopkg.in/hlandau/passlib.v1/abstract"
 
 var cSHA2CryptHashCalls = expvar.NewInt("passlib.sha2crypt.hashCalls")
 var cSHA2CryptVerifyCalls = expvar.NewInt("passlib.sha2crypt.verifyCalls")
