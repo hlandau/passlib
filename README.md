@@ -81,7 +81,6 @@ TODO
 ----
 
   - PBKDF2
-  - bcrypt
 
 Licence
 -------
