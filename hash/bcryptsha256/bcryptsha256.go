@@ -12,12 +12,21 @@ type scheme struct {
 	cost       int
 }
 
+// An implementation of Scheme implementing Python passlib's `$bcrypt-sha256$`
+// bcrypt variant. This is bcrypt with a SHA256 prehash, which removes bcrypt's
+// password length limitation.
 var Crypter abstract.Scheme
+
+// The recommended cost for bcrypt-sha256. This may change with subsequent releases.
+const RecommendedCost = bcrypt.RecommendedCost
 
 func init() {
 	Crypter = New(bcrypt.RecommendedCost)
 }
 
+// Instantiates a new Scheme implementing bcrypt with the given cost.
+//
+// The recommended cost is RecommendedCost.
 func New(cost int) abstract.Scheme {
 	return &scheme{
 		underlying: bcrypt.New(cost),

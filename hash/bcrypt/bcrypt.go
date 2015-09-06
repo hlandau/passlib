@@ -4,17 +4,19 @@ import "golang.org/x/crypto/bcrypt"
 import "gopkg.in/hlandau/passlib.v1/abstract"
 import "fmt"
 
-// An implementation of Scheme performing bcrypt.
+// An implementation of Scheme implementing bcrypt.
 //
-// Uses bcrypt.DefaultCost.
+// Uses RecommendedCost.
 var Crypter abstract.Scheme
 
+// The recommended cost for bcrypt. This may change with subsequent releases.
 const RecommendedCost = bcrypt.DefaultCost
 
 func init() {
-	Crypter = New(bcrypt.DefaultCost)
+	Crypter = New(RecommendedCost)
 }
 
+// Create a new scheme implementing bcrypt. The recommended cost is RecommendedCost.
 func New(cost int) abstract.Scheme {
 	return &scheme{
 		Cost: cost,
