@@ -59,24 +59,24 @@ func (c *sha2Crypter) SupportsStub(stub string) bool {
 	return (stub[1] == '5' && !c.sha512) || (stub[1] == '6' && c.sha512)
 }
 
-func (c *sha2Crypter) Hash(password, stub string) (string, error) {
+func (c *sha2Crypter) Hash(password string) (string, error) {
 	cSHA2CryptHashCalls.Add(1)
+
+	stub, err := c.makeStub()
+	if err != nil {
+		return "", err
+	}
 
 	_, newHash, _, _, err := c.hash(password, stub)
 	return newHash, err
 }
 
-func (c *sha2Crypter) Verify(password, hash string) (newHash string, err error) {
+func (c *sha2Crypter) Verify(password, hash string) (err error) {
 	cSHA2CryptVerifyCalls.Add(1)
 
-	_, newHash, salt, rounds, err := c.hash(password, hash)
+	_, newHash, _, _, err := c.hash(password, hash)
 	if err == nil && !abstract.SecureCompare(hash, newHash) {
 		err = abstract.ErrInvalidPassword
-	}
-
-	newHash = ""
-	if err == nil {
-		newHash = c.getUpgradeHash(password, salt, rounds)
 	}
 
 	return
@@ -93,25 +93,6 @@ func (c *sha2Crypter) NeedsUpdate(stub string) bool {
 
 func (c *sha2Crypter) needsUpdate(salt string, rounds int) bool {
 	return rounds < c.rounds || len(salt) < 16
-}
-
-func (c *sha2Crypter) getUpgradeHash(password, salt string, rounds int) string {
-	if !c.needsUpdate(salt, rounds) {
-		// no need to upgrade
-		return ""
-	}
-
-	newStub, err := c.MakeStub()
-	if err != nil {
-		return ""
-	}
-
-	newHash, err := c.Hash(password, newStub)
-	if err != nil {
-		return ""
-	}
-
-	return newHash
 }
 
 var errInvalidStub = fmt.Errorf("invalid sha2 password stub")
@@ -133,7 +114,7 @@ func (c *sha2Crypter) hash(password, stub string) (oldHash, newHash, salt string
 	return oldHash, raw.Crypt256(password, salt, rounds), salt, rounds, nil
 }
 
-func (c *sha2Crypter) MakeStub() (string, error) {
+func (c *sha2Crypter) makeStub() (string, error) {
 	ch := "5"
 	if c.sha512 {
 		ch = "6"
@@ -152,6 +133,14 @@ func (c *sha2Crypter) MakeStub() (string, error) {
 	}
 
 	return fmt.Sprintf("$%s$rounds=%d$%s", ch, c.rounds, salt), nil
+}
+
+func (c *sha2Crypter) String() string {
+	if c.sha512 {
+		return fmt.Sprintf("sha512-crypt(%d)", c.rounds)
+	} else {
+		return fmt.Sprintf("sha256-crypt(%d)", c.rounds)
+	}
 }
 
 // © 2014 Hugo Landau <hlandau@devever.net>  BSD License

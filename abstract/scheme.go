@@ -17,7 +17,7 @@ type Scheme interface {
 	//
 	// A full modular crypt hash may also be passed as the stub, in which case
 	// the hash is ignored.
-	Hash(password, stub string) (string, error)
+	Hash(password string) (string, error)
 
 	// Verifies a plaintext UTF-8 password using a modular crypt hash.  Returns
 	// an error if the inputs are malformed or the password does not match.
@@ -25,7 +25,7 @@ type Scheme interface {
 	// The newHash output is ordinarily empty. If it is not empty, it contains an
 	// upgraded password hash which should replace the hash which was passed in
 	// whereever it is stored.
-	Verify(password, hash string) (newHash string, err error)
+	Verify(password, hash string) (err error)
 
 	// Returns true iff this crypter supports the given stub.
 	SupportsStub(stub string) bool
@@ -34,5 +34,5 @@ type Scheme interface {
 	NeedsUpdate(stub string) bool
 
 	// Make a stub with the configured defaults. The salt is generated randomly.
-	MakeStub() (string, error)
+	//MakeStub() (string, error)
 }

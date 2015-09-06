@@ -49,24 +49,24 @@ func (c *scryptSHA256Crypter) SupportsStub(stub string) bool {
 	return strings.HasPrefix(stub, "$s2$")
 }
 
-func (c *scryptSHA256Crypter) Hash(password, stub string) (string, error) {
+func (c *scryptSHA256Crypter) Hash(password string) (string, error) {
 	cScryptSHA256HashCalls.Add(1)
+
+	stub, err := c.makeStub()
+	if err != nil {
+		return "", err
+	}
 
 	_, newHash, _, _, _, _, err := c.hash(password, stub)
 	return newHash, err
 }
 
-func (c *scryptSHA256Crypter) Verify(password, hash string) (newHash string, err error) {
+func (c *scryptSHA256Crypter) Verify(password, hash string) (err error) {
 	cScryptSHA256VerifyCalls.Add(1)
 
-	_, newHash, salt, N, r, p, err := c.hash(password, hash)
+	_, newHash, _, _, _, _, err := c.hash(password, hash)
 	if err == nil && !abstract.SecureCompare(hash, newHash) {
 		err = abstract.ErrInvalidPassword
-	}
-
-	newHash = ""
-	if err != nil {
-		newHash = c.getUpgradeHash(password, salt, N, r, p)
 	}
 
 	return
@@ -85,25 +85,6 @@ func (c *scryptSHA256Crypter) needsUpdate(salt []byte, N, r, p int) bool {
 	return len(salt) < 18 || N < c.nN || r < c.r || p < c.p
 }
 
-func (c *scryptSHA256Crypter) getUpgradeHash(password string, salt []byte, N, r, p int) string {
-	if !c.needsUpdate(salt, N, r, p) {
-		// no need to upgrade
-		return ""
-	}
-
-	newStub, err := c.MakeStub()
-	if err != nil {
-		return ""
-	}
-
-	newHash, err := c.Hash(password, newStub)
-	if err != nil {
-		return ""
-	}
-
-	return newHash
-}
-
 func (c *scryptSHA256Crypter) hash(password, stub string) (oldHashRaw []byte, newHash string, salt []byte, N, r, p int, err error) {
 	salt, oldHashRaw, N, r, p, err = raw.Parse(stub)
 	if err != nil {
@@ -113,7 +94,7 @@ func (c *scryptSHA256Crypter) hash(password, stub string) (oldHashRaw []byte, ne
 	return oldHashRaw, raw.ScryptSHA256(password, salt, N, r, p), salt, N, r, p, nil
 }
 
-func (c *scryptSHA256Crypter) MakeStub() (string, error) {
+func (c *scryptSHA256Crypter) makeStub() (string, error) {
 	buf := make([]byte, 18)
 	_, err := rand.Read(buf)
 	if err != nil {
@@ -123,4 +104,8 @@ func (c *scryptSHA256Crypter) MakeStub() (string, error) {
 	salt := base64.StdEncoding.EncodeToString(buf)
 
 	return fmt.Sprintf("$s2$%d$%d$%d$%s", c.nN, c.r, c.p, salt), nil
+}
+
+func (c *scryptSHA256Crypter) String() string {
+	return fmt.Sprintf("scrypt-sha256(%d,%d,%d)", c.nN, c.r, c.p)
 }

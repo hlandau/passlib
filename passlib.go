@@ -8,6 +8,8 @@ package passlib // import "gopkg.in/hlandau/passlib.v1"
 import "gopkg.in/hlandau/passlib.v1/abstract"
 import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
 import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
+import "gopkg.in/hlandau/passlib.v1/hash/bcryptsha256"
+import "gopkg.in/hlandau/passlib.v1/hash/bcrypt"
 import "github.com/hlandau/degoutils/metric"
 
 var cHashCalls = metric.NewCounter("passlib.ctx.hashCalls")
@@ -22,7 +24,10 @@ var cSuccessfulVerifyCallsWithUpgrade = metric.NewCounter("passlib.ctx.successfu
 var DefaultSchemes = []abstract.Scheme{
 	scrypt.SHA256Crypter,
 	sha2crypt.Crypter256,
-	sha2crypt.Crypter512}
+	sha2crypt.Crypter512,
+	bcryptsha256.Crypter,
+	bcrypt.Crypter,
+}
 
 type Context struct {
 	// Slice of schemes to use, most preferred first.
@@ -41,14 +46,6 @@ func (ctx *Context) init() {
 	}
 }
 
-// Randomly generates a new password stub for the preferred password hashing
-// scheme of the context.
-func (ctx *Context) MakeStub() (string, error) {
-	ctx.init()
-
-	return ctx.Schemes[0].MakeStub()
-}
-
 // Hashes a UTF-8 plaintext password using the context and produces a password hash.
 //
 // If stub is "", one is generated automaticaly for the preferred password hashing
@@ -59,25 +56,11 @@ func (ctx *Context) MakeStub() (string, error) {
 //
 // If the context has not been specifically configured, a sensible default policy
 // is used. See the fields of Context.
-func (ctx *Context) Hash(password, stub string) (hash string, err error) {
+func (ctx *Context) Hash(password string) (hash string, err error) {
 	ctx.init()
 	cHashCalls.Add(1)
 
-	if stub == "" {
-		stub, err = ctx.MakeStub()
-		if err != nil {
-			return
-		}
-	}
-
-	for _, scheme := range ctx.Schemes {
-		if scheme.SupportsStub(stub) {
-			return scheme.Hash(password, stub)
-		}
-	}
-
-	err = abstract.ErrUnsupportedScheme
-	return
+	return ctx.Schemes[0].Hash(password)
 }
 
 // Verifies a UTF-8 plaintext password using a previously derived password hash
@@ -97,15 +80,15 @@ func (ctx *Context) Verify(password, hash string) (newHash string, err error) {
 
 	for i, scheme := range ctx.Schemes {
 		if scheme.SupportsStub(hash) {
-			newHash, err = scheme.Verify(password, hash)
+			err = scheme.Verify(password, hash)
 			if err == nil {
 				cSuccessfulVerifyCalls.Add(1)
-				if i != 0 {
+				if i != 0 || scheme.NeedsUpdate(hash) {
 					cSuccessfulVerifyCallsWithUpgrade.Add(1)
 
 					// If the scheme is not the first scheme, rehash with the preferred
 					// scheme.
-					newHash, err = ctx.Hash(password, "")
+					newHash, err = ctx.Hash(password)
 				}
 			} else {
 				cFailedVerifyCalls.Add(1)
@@ -143,7 +126,7 @@ var DefaultContext Context
 // password hash. Chooses the preferred password hashing scheme based on the
 // configured policy. The default policy is sensible.
 func Hash(password string) (hash string, err error) {
-	return DefaultContext.Hash(password, "")
+	return DefaultContext.Hash(password)
 }
 
 // Verifies a UTF-8 plaintext password using a previously derived password hash
