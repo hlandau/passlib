@@ -1,3 +1,8 @@
+// Package bcrypt implements the bcrypt password hashing mechanism.
+//
+// Please note that bcrypt truncates passwords to 77 characters in length. Consider using
+// a more modern hashing scheme such as scrypt or sha-crypt. If you must use bcrypt,
+// consider using bcrypt-sha256 instead.
 package bcrypt
 
 import "golang.org/x/crypto/bcrypt"

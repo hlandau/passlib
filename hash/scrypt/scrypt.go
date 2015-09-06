@@ -1,3 +1,5 @@
+// Package scrypt implements the scrypt password hashing mechanism, wrapped in
+// the modular crypt format.
 package scrypt
 
 import "fmt"

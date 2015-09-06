@@ -67,7 +67,7 @@ func kat(t *testing.T, scheme abstract.Scheme, password, hash string) {
 
 	_, err := c.Verify(password, hash)
 	if err != nil {
-		t.Logf("err verifying known good hash: %v %#s %#s", scheme, password, hash)
+		t.Logf("err verifying known good hash: %v %s %s", scheme, password, hash)
 		t.Fail()
 	}
 

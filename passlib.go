@@ -29,6 +29,8 @@ var DefaultSchemes = []abstract.Scheme{
 	bcrypt.Crypter,
 }
 
+// A password hashing context, that uses a given set of schemes to hash and
+// verify passwords.
 type Context struct {
 	// Slice of schemes to use, most preferred first.
 	//

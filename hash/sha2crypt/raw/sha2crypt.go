@@ -1,3 +1,4 @@
+// Package raw provides a raw implementation of the sha256-crypt and sha512-crypt primitives.
 package raw
 
 import "io"

@@ -1,3 +1,4 @@
+// Package raw provides a raw implementation of the modular-crypt-wrapped scrypt primitive.
 package raw
 
 import "golang.org/x/crypto/scrypt"

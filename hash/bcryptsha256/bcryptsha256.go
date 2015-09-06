@@ -1,3 +1,7 @@
+// Package bcryptsha256 implements bcrypt with a SHA256 prehash in a format that is compatible with Python passlib's equivalent bcrypt-sha256 scheme.
+//
+// This is preferred over bcrypt because the prehash essentially renders bcrypt's password length
+// limitation irrelevant; although of course it is less compatible.
 package bcryptsha256
 
 import "gopkg.in/hlandau/passlib.v1/abstract"
