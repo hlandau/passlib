@@ -2,6 +2,7 @@ package passlib
 
 import "testing"
 import "gopkg.in/hlandau/passlib.v1/abstract"
+import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
 import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
 import "gopkg.in/hlandau/passlib.v1/hash/bcrypt"
 import "gopkg.in/hlandau/passlib.v1/hash/bcryptsha256"
@@ -185,6 +186,13 @@ func TestKat(t *testing.T) {
 		{"abc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc123xyz", "$bcrypt-sha256$2a,5$X1g1nh3g0v4h6970O68cxe$7.1kgpHduMGEjvM3fX6e/QCvfn6OKja"},
 	} {
 		kat(t, bcryptsha256.Crypter, v.p, v.h)
+	}
+
+	for _, v := range []struct{ p, h string }{
+		{"", "$s2$16384$8$1$5KHwLMZjMDiuPAhUYK/XcKZW$KZIGWg5XM1Xsh8X/wuBE1+KTeFImkuQn3gZpjUZcqns="},
+		{"foobar", "$s2$16384$8$1$qa9lVfhmTE8F2Jpwya9m7uoE$Q7dSPqhZQCLWpjniaz7RVm+xorpSAPTvOCP2uoZmoiI="},
+	} {
+		kat(t, scrypt.SHA256Crypter, v.p, v.h)
 	}
 }
 

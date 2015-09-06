@@ -10,9 +10,9 @@ put into it, or with more support for obscure password formats.
 This is a skeleton of a port of passlib to Go. It dogmatically adopts the
 modular crypt format, which [passlib has excellent documentation for](https://pythonhosted.org/passlib/modular_crypt_format.html#modular-crypt-format).
 
-Currently, it supports sha256-crypt, sha512-crypt and scrypt-sha256. By
-default, it will hash using scrypt-sha256 and verify existing hashes using
-any of these schemes.
+Currently, it supports sha256-crypt, sha512-crypt, scrypt-sha256, bcrypt and
+passlib's bcrypt-sha256 variant. By default, it will hash using scrypt-sha256
+and verify existing hashes using any of these schemes.
 
 Example Usage
 -------------
