@@ -19,55 +19,59 @@ Example Usage
 There's a default context for ease of use. Most people need only concern
 themselves with the functions `Hash` and `Verify`:
 
-    // Hash a plaintext, UTF-8 password.
-    func Hash(password string) (hash string, err error)
+```go
+// Hash a plaintext, UTF-8 password.
+func Hash(password string) (hash string, err error)
 
-    // Verifies a plaintext, UTF-8 password using a previously derived hash.
-    // Returns non-nil err if verification fails.
-    //
-    // Also returns an upgraded password hash if the hash provided is
-    // deprecated.
-    func Verify(password, hash string) (newHash string, err error)
+// Verifies a plaintext, UTF-8 password using a previously derived hash.
+// Returns non-nil err if verification fails.
+//
+// Also returns an upgraded password hash if the hash provided is
+// deprecated.
+func Verify(password, hash string) (newHash string, err error)
+```
 
 Here's a rough skeleton of typical usage.
 
-    import "gopkg.in/hlandau/passlib.v1"
+```go
+import "gopkg.in/hlandau/passlib.v1"
 
-    func RegisterUser() {
-      (...)
+func RegisterUser() {
+  (...)
 
-      password := get a (UTF-8, plaintext) password from somewhere
+  password := get a (UTF-8, plaintext) password from somewhere
 
-      hash, err := passlib.Hash(password)
-      if err != nil {
-        // couldn't hash password for some reason
-        return
-      }
+  hash, err := passlib.Hash(password)
+  if err != nil {
+    // couldn't hash password for some reason
+    return
+  }
 
-      (store hash in database, etc.)
-    }
+  (store hash in database, etc.)
+}
 
-    func CheckPassword() bool {
-      password := get the password the user entered
-      hash := the hash you stored from the call to Hash()
+func CheckPassword() bool {
+  password := get the password the user entered
+  hash := the hash you stored from the call to Hash()
 
-      newHash, err := passlib.Verify(password, hash)
-      if err != nil {
-        // incorrect password, malformed hash, etc.
-        // either way, reject
-        return false
-      }
+  newHash, err := passlib.Verify(password, hash)
+  if err != nil {
+    // incorrect password, malformed hash, etc.
+    // either way, reject
+    return false
+  }
 
-      // The context has decided, as per its policy, that
-      // the hash which was used to validate the password
-      // should be changed. It has upgraded the hash using
-      // the verified password.
-      if newHash != "" {
-        (store newHash in database, replacing old hash)
-      }
+  // The context has decided, as per its policy, that
+  // the hash which was used to validate the password
+  // should be changed. It has upgraded the hash using
+  // the verified password.
+  if newHash != "" {
+    (store newHash in database, replacing old hash)
+  }
 
-      return true
-    }
+  return true
+}
+```
 
 scrypt Modular Crypt Format
 ---------------------------
