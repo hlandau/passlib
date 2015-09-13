@@ -37,6 +37,31 @@ func TestPasslib(t *testing.T) {
 	}
 }
 
+func TestDefault(t *testing.T) {
+  h, err := Hash("password")
+  if err != nil {
+    t.Fatalf("err: %v", err)
+  }
+
+  newHash, err := Verify("password", h)
+  if err != nil {
+    t.Fatalf("err verifying: %v (%#v)", err, h)
+  }
+
+  if newHash != "" {
+    t.Fatalf("unexpected upgrade")
+  }
+
+  newHash, err = Verify("foobar", "$s2$16384$8$1$qa9lVfhmTE8F2Jpwya9m7uoE$Q7dSPqhZQCLWpjniaz7RVm+xorpSAPTvOCP2uoZmoiI=")
+  if err != nil {
+    t.Fatalf("err verifying known good: %v", err)
+  }
+
+  if newHash != "" {
+    t.Fatalf("unexpected upgrade")
+  }
+}
+
 func TestUpgrade(t *testing.T) {
 	c := Context{Schemes: DefaultSchemes[1:]}
 
