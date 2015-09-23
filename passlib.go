@@ -10,13 +10,13 @@ import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
 import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
 import "gopkg.in/hlandau/passlib.v1/hash/bcryptsha256"
 import "gopkg.in/hlandau/passlib.v1/hash/bcrypt"
-import "github.com/hlandau/degoutils/metric"
+import "gopkg.in/hlandau/easymetric.v1/cexp"
 
-var cHashCalls = metric.NewCounter("passlib.ctx.hashCalls")
-var cVerifyCalls = metric.NewCounter("passlib.ctx.verifyCalls")
-var cSuccessfulVerifyCalls = metric.NewCounter("passlib.ctx.successfulVerifyCalls")
-var cFailedVerifyCalls = metric.NewCounter("passlib.ctx.failedVerifyCalls")
-var cSuccessfulVerifyCallsWithUpgrade = metric.NewCounter("passlib.ctx.successfulVerifyCallsWithUpgrade")
+var cHashCalls = cexp.NewCounter("passlib.ctx.hashCalls")
+var cVerifyCalls = cexp.NewCounter("passlib.ctx.verifyCalls")
+var cSuccessfulVerifyCalls = cexp.NewCounter("passlib.ctx.successfulVerifyCalls")
+var cFailedVerifyCalls = cexp.NewCounter("passlib.ctx.failedVerifyCalls")
+var cSuccessfulVerifyCallsWithUpgrade = cexp.NewCounter("passlib.ctx.successfulVerifyCallsWithUpgrade")
 
 // The default schemes, most preferred first. The first scheme will be used to
 // hash passwords, and any of the schemes may be used to verify existing
