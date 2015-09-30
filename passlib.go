@@ -17,6 +17,7 @@ var cVerifyCalls = cexp.NewCounter("passlib.ctx.verifyCalls")
 var cSuccessfulVerifyCalls = cexp.NewCounter("passlib.ctx.successfulVerifyCalls")
 var cFailedVerifyCalls = cexp.NewCounter("passlib.ctx.failedVerifyCalls")
 var cSuccessfulVerifyCallsWithUpgrade = cexp.NewCounter("passlib.ctx.successfulVerifyCallsWithUpgrade")
+var cSuccessfulVerifyCallsDeferringUpgrade = cexp.NewCounter("passlib.ctx.successfulVerifyCallsDeferringUpgrade")
 
 // The default schemes, most preferred first. The first scheme will be used to
 // hash passwords, and any of the schemes may be used to verify existing
@@ -77,31 +78,49 @@ func (ctx *Context) Hash(password string) (hash string, err error) {
 //
 // You should treat any non-nil err as a password verification error.
 func (ctx *Context) Verify(password, hash string) (newHash string, err error) {
+	return ctx.verify(password, hash, true)
+}
+
+// Like Verify, but does not hash an upgrade password when upgrade is required.
+func (ctx *Context) VerifyNoUpgrade(password, hash string) error {
+	_, err := ctx.verify(password, hash, false)
+	return err
+}
+
+func (ctx *Context) verify(password, hash string, canUpgrade bool) (newHash string, err error) {
 	ctx.init()
 	cVerifyCalls.Add(1)
 
 	for i, scheme := range ctx.Schemes {
-		if scheme.SupportsStub(hash) {
-			err = scheme.Verify(password, hash)
-			if err == nil {
-				cSuccessfulVerifyCalls.Add(1)
-				if i != 0 || scheme.NeedsUpdate(hash) {
-					cSuccessfulVerifyCallsWithUpgrade.Add(1)
+		if !scheme.SupportsStub(hash) {
+			continue
+		}
 
-					// If the scheme is not the first scheme, rehash with the preferred
-					// scheme.
-					newHash, err = ctx.Hash(password)
+		err = scheme.Verify(password, hash)
+		if err != nil {
+			cFailedVerifyCalls.Add(1)
+			return "", err
+		}
+
+		cSuccessfulVerifyCalls.Add(1)
+		if i != 0 || scheme.NeedsUpdate(hash) {
+			if canUpgrade {
+				cSuccessfulVerifyCallsWithUpgrade.Add(1)
+
+				// If the scheme is not the first scheme, try and rehash with the
+				// preferred scheme.
+				if newHash, err2 := ctx.Hash(password); err2 == nil {
+					return newHash, nil
 				}
 			} else {
-				cFailedVerifyCalls.Add(1)
+				cSuccessfulVerifyCallsDeferringUpgrade.Add(1)
 			}
-
-			return
 		}
+
+		return "", nil
 	}
 
-	err = abstract.ErrUnsupportedScheme
-	return
+	return "", abstract.ErrUnsupportedScheme
 }
 
 // Determines whether a stub or hash needs updating according to the policy of
@@ -144,6 +163,11 @@ func Hash(password string) (hash string, err error) {
 // You should treat any non-nil err as a password verification error.
 func Verify(password, hash string) (newHash string, err error) {
 	return DefaultContext.Verify(password, hash)
+}
+
+// Like Verify, but never upgrades.
+func VerifyNoUpgrade(password, hash string) error {
+	return DefaultContext.VerifyNoUpgrade(password, hash)
 }
 
 // Uses the default context to determine whether a stub or hash needs updating.
