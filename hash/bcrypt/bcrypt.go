@@ -15,7 +15,9 @@ import "fmt"
 var Crypter abstract.Scheme
 
 // The recommended cost for bcrypt. This may change with subsequent releases.
-const RecommendedCost = bcrypt.DefaultCost
+const RecommendedCost = 12
+
+// bcrypt.DefaultCost is a bit low (10), so use 12 instead.
 
 func init() {
 	Crypter = New(RecommendedCost)
