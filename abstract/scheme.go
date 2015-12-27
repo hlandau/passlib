@@ -21,10 +21,6 @@ type Scheme interface {
 
 	// Verifies a plaintext UTF-8 password using a modular crypt hash.  Returns
 	// an error if the inputs are malformed or the password does not match.
-	//
-	// The newHash output is ordinarily empty. If it is not empty, it contains an
-	// upgraded password hash which should replace the hash which was passed in
-	// whereever it is stored.
 	Verify(password, hash string) (err error)
 
 	// Returns true iff this crypter supports the given stub.

@@ -43,10 +43,12 @@ type Context struct {
 	Schemes []abstract.Scheme
 }
 
-func (ctx *Context) init() {
-	if len(ctx.Schemes) == 0 {
-		ctx.Schemes = DefaultSchemes
+func (ctx *Context) schemes() []abstract.Scheme {
+	if ctx.Schemes == nil {
+		return DefaultSchemes
 	}
+
+	return ctx.Schemes
 }
 
 // Hashes a UTF-8 plaintext password using the context and produces a password hash.
@@ -60,10 +62,9 @@ func (ctx *Context) init() {
 // If the context has not been specifically configured, a sensible default policy
 // is used. See the fields of Context.
 func (ctx *Context) Hash(password string) (hash string, err error) {
-	ctx.init()
 	cHashCalls.Add(1)
 
-	return ctx.Schemes[0].Hash(password)
+	return ctx.schemes()[0].Hash(password)
 }
 
 // Verifies a UTF-8 plaintext password using a previously derived password hash
@@ -88,10 +89,9 @@ func (ctx *Context) VerifyNoUpgrade(password, hash string) error {
 }
 
 func (ctx *Context) verify(password, hash string, canUpgrade bool) (newHash string, err error) {
-	ctx.init()
 	cVerifyCalls.Add(1)
 
-	for i, scheme := range ctx.Schemes {
+	for i, scheme := range ctx.schemes() {
 		if !scheme.SupportsStub(hash) {
 			continue
 		}
@@ -126,9 +126,7 @@ func (ctx *Context) verify(password, hash string, canUpgrade bool) (newHash stri
 // Determines whether a stub or hash needs updating according to the policy of
 // the context.
 func (ctx *Context) NeedsUpdate(stub string) bool {
-	ctx.init()
-
-	for _, scheme := range ctx.Schemes {
+	for _, scheme := range ctx.schemes() {
 		if scheme.SupportsStub(stub) {
 			return scheme.NeedsUpdate(stub)
 		}
