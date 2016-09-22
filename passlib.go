@@ -126,9 +126,9 @@ func (ctx *Context) verify(password, hash string, canUpgrade bool) (newHash stri
 // Determines whether a stub or hash needs updating according to the policy of
 // the context.
 func (ctx *Context) NeedsUpdate(stub string) bool {
-	for _, scheme := range ctx.schemes() {
+	for i, scheme := range ctx.schemes() {
 		if scheme.SupportsStub(stub) {
-			return scheme.NeedsUpdate(stub)
+			return i != 0 || scheme.NeedsUpdate(stub)
 		}
 	}
 
