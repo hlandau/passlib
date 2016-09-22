@@ -30,6 +30,61 @@ var DefaultSchemes = []abstract.Scheme{
 	bcrypt.Crypter,
 }
 
+// It is strongly recommended that you call this function like this before using passlib:
+//
+//   passlib.UseDefaults("YYYYMMDD")
+//
+// where YYYYMMDD is a date. This will be used to select the preferred scheme
+// to use. If you do not call UseDefaults, the preferred scheme (the first item
+// in the default schemes list) current as of 2016-09-22 will always be used,
+// meaning that upgrade will not occur even when a better scheme is now
+// available.
+//
+// Note that even if you don't call this function, new schemes will still be
+// added to DefaultSchemes over time as non-initial values (items not at index
+// 0), so servers will always, by default, be able to validate all schemes
+// which passlib supports at any given time.
+//
+// The reason you must call this function is as follows: If passlib is deployed
+// as part of a web application in a multi-server deployment, and passlib is
+// updated, and the new version of that application with the updated passlib is
+// deployed, that upgrade process is unlikely to be instantaneous. Old versions
+// of the web application may continue to run on some servers. If merely
+// upgrading passlib caused password hashes to be upgraded to the newer scheme
+// on login, the older daemons may not be able to validate these passwords and
+// users may have issues logging in. Although this can be ameliorated to some
+// extent by introducing a new scheme to passlib, waiting some months, and only
+// then making this the default, this could still cause issued if passlib is
+// only updated very occasionally.
+//
+// Thus, you should update your call to UseDefaults only when all servers have
+// been upgraded, and it is thus guaranteed that they will all be able to
+// verify the new scheme. Making this value loadable from a configuration file
+// is recommended.
+//
+// If you are using a single-server configuration, you can use the special
+// value "latest" here (or, equivalently, a date far into the future), which
+// will always use the most preferred scheme. This is hazardous in a
+// multi-server environment.
+//
+// The constants beginning 'DefaultsVersion' in this package document dates
+// which are meaningful to this function. The constant values they are equal to
+// will never change, so there is no need to use them instead of string
+// literals, although you may if you wish; they are intended mainly as
+// documentation as to the significance of various dates.
+//
+// Example:
+//
+//   passlib.UseDefaults("20160922")
+//
+func UseDefaults(date string) {
+	// The schemes haven't changed yet, so currently this does nothing.
+}
+
+// This is the first and current set of defaults used by passlib. It prefers
+// scrypt-sha256.
+const DefaultsVersion20160922 = "20160922"
+
 // A password hashing context, that uses a given set of schemes to hash and
 // verify passwords.
 type Context struct {
