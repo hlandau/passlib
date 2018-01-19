@@ -5,7 +5,10 @@
 // and Verify, which uses the default context and sensible defaults.
 package passlib // import "gopkg.in/hlandau/passlib.v1"
 
-import "gopkg.in/hlandau/passlib.v1/abstract"
+import (
+	"gopkg.in/hlandau/passlib.v1/abstract"
+	"gopkg.in/hlandau/passlib.v1/hash/argon2"
+)
 import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
 import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
 import "gopkg.in/hlandau/passlib.v1/hash/bcryptsha256"
@@ -23,6 +26,7 @@ var cSuccessfulVerifyCallsDeferringUpgrade = cexp.NewCounter("passlib.ctx.succes
 // hash passwords, and any of the schemes may be used to verify existing
 // passwords. The contents of this value may change with subsequent releases.
 var DefaultSchemes = []abstract.Scheme{
+	argon2.Crypter,
 	scrypt.SHA256Crypter,
 	sha2crypt.Crypter256,
 	sha2crypt.Crypter512,

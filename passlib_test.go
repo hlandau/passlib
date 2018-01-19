@@ -1,11 +1,15 @@
 package passlib
 
-import "testing"
-import "gopkg.in/hlandau/passlib.v1/abstract"
-import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
-import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
-import "gopkg.in/hlandau/passlib.v1/hash/bcrypt"
-import "gopkg.in/hlandau/passlib.v1/hash/bcryptsha256"
+import (
+	"testing"
+
+	"gopkg.in/hlandau/passlib.v1/abstract"
+	"gopkg.in/hlandau/passlib.v1/hash/argon2"
+	"gopkg.in/hlandau/passlib.v1/hash/bcrypt"
+	"gopkg.in/hlandau/passlib.v1/hash/bcryptsha256"
+	"gopkg.in/hlandau/passlib.v1/hash/scrypt"
+	"gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
+)
 
 //import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
 
@@ -52,7 +56,7 @@ func TestDefault(t *testing.T) {
 		t.Fatalf("unexpected upgrade")
 	}
 
-	newHash, err = Verify("foobar", "$s2$16384$8$1$qa9lVfhmTE8F2Jpwya9m7uoE$Q7dSPqhZQCLWpjniaz7RVm+xorpSAPTvOCP2uoZmoiI=")
+	newHash, err = Verify("foobar", "$argon2i$v=19$m=32768,t=4,p=4$c29tZXNhbHRzb21lYWxrdA$HcTlbOnOAzJ2dUrlgHnNwC0yallJ/Gl2NbAWqg4IukA")
 	if err != nil {
 		t.Fatalf("err verifying known good: %v", err)
 	}
@@ -91,6 +95,7 @@ func kat(t *testing.T, scheme abstract.Scheme, password, hash string) {
 	c := Context{Schemes: []abstract.Scheme{scheme}}
 
 	_, err := c.Verify(password, hash)
+
 	if err != nil {
 		t.Logf("err verifying known good hash: %v %s %s", scheme, password, hash)
 		t.Fail()
@@ -218,6 +223,13 @@ func TestKat(t *testing.T) {
 		{"foobar", "$s2$16384$8$1$qa9lVfhmTE8F2Jpwya9m7uoE$Q7dSPqhZQCLWpjniaz7RVm+xorpSAPTvOCP2uoZmoiI="},
 	} {
 		kat(t, scrypt.SHA256Crypter, v.p, v.h)
+	}
+
+	for _, v := range []struct{ p, h string }{
+		{"", "$argon2i$v=19$m=32768,t=4,p=4$XEfcwb81UQKSzIcxVEIgrw$1lAPOhgJpGJEgGSKxdnd3n3F9S5qPZSf53iKM1/SvTk"},
+		{"foobar", "$argon2i$v=19$m=32768,t=4,p=4$uN6vgPBb8/liQld8lgFqew$KlvqGCHX7Cap0ohKY7YAUJsbzcnenCwvSAfhqtIA/Q0"},
+	} {
+		kat(t, argon2.Crypter, v.p, v.h)
 	}
 }
 
