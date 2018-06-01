@@ -17,6 +17,9 @@ Currently, it supports:
   - scrypt-sha256
   - bcrypt
   - passlib's bcrypt-sha256 variant
+  - pbkdf2-sha1 (in passlib format)
+  - pbkdf2-sha256 (in passlib format)
+  - pbkdf2-sha512 (in passlib format)
 
 By default, it will hash using scrypt-sha256 and verify existing hashes using
 any of these schemes.

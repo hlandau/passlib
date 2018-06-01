@@ -8,6 +8,7 @@ package passlib // import "gopkg.in/hlandau/passlib.v1"
 import "gopkg.in/hlandau/passlib.v1/abstract"
 import "gopkg.in/hlandau/passlib.v1/hash/scrypt"
 import "gopkg.in/hlandau/passlib.v1/hash/sha2crypt"
+import "gopkg.in/hlandau/passlib.v1/hash/pbkdf2"
 import "gopkg.in/hlandau/passlib.v1/hash/bcryptsha256"
 import "gopkg.in/hlandau/passlib.v1/hash/bcrypt"
 import "gopkg.in/hlandau/easymetric.v1/cexp"
@@ -26,6 +27,9 @@ var DefaultSchemes = []abstract.Scheme{
 	scrypt.SHA256Crypter,
 	sha2crypt.Crypter256,
 	sha2crypt.Crypter512,
+	pbkdf2.Crypter512,
+	pbkdf2.Crypter256,
+	pbkdf2.Crypter1,
 	bcryptsha256.Crypter,
 	bcrypt.Crypter,
 }

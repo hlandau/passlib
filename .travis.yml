@@ -6,5 +6,7 @@ go:
   - tip
 sudo: false
 install:
-  - go get gopkg.in/hlandau/passlib.v1
+  - mkdir -p $HOME/gopath/src/gopkg.in/hlandau/
+  - ln -s $TRAVIS_BUILD_DIR $HOME/gopath/src/gopkg.in/hlandau/passlib.v1
   - cd $HOME/gopath/src/gopkg.in/hlandau/passlib.v1
+  - go get
