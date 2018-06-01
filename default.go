@@ -24,25 +24,26 @@ const DefaultsVersion20180601 = "20180601"
 var defaultSchemes20160922 = []abstract.Scheme{
 	scrypt.SHA256Crypter,
 	argon2.Crypter,
-	sha2crypt.Crypter256,
 	sha2crypt.Crypter512,
+	sha2crypt.Crypter256,
 	bcryptsha256.Crypter,
-	pbkdf2.SHA512,
-	pbkdf2.SHA256,
+	pbkdf2.SHA512Crypter,
+	pbkdf2.SHA256Crypter,
 	bcrypt.Crypter,
-	pbkdf2.SHA1,
+	pbkdf2.SHA1Crypter,
 }
 
 // Default schemes as of 2018-06-01.
 var defaultSchemes20180601 = []abstract.Scheme{
 	argon2.Crypter,
 	scrypt.SHA256Crypter,
-	sha2crypt.Crypter256,
 	sha2crypt.Crypter512,
+	sha2crypt.Crypter256,
 	bcryptsha256.Crypter,
-	pbkdf2.SHA512,
-	pbkdf2.SHA256,
+	pbkdf2.SHA512Crypter,
+	pbkdf2.SHA256Crypter,
 	bcrypt.Crypter,
+	pbkdf2.SHA1Crypter,
 }
 
 // The default schemes, most preferred first. The first scheme will be used to

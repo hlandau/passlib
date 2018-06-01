@@ -24,9 +24,9 @@ import (
 //
 // WARNING: SHA1 should not be used for new applications under any
 // circumstances. It should be used for legacy compatibility only.
-var SHA1 abstract.Scheme
-var SHA256 abstract.Scheme
-var SHA512 abstract.Scheme
+var SHA1Crypter abstract.Scheme
+var SHA256Crypter abstract.Scheme
+var SHA512Crypter abstract.Scheme
 
 const (
 	RecommendedRoundsSHA1   = 131000
@@ -37,9 +37,9 @@ const (
 const SaltLength = 16
 
 func init() {
-	SHA1 = New("$pbkdf2$", sha1.New, RecommendedRoundsSHA1)
-	SHA256 = New("$pbkdf2-sha256$", sha256.New, RecommendedRoundsSHA256)
-	SHA512 = New("$pbkdf2-sha512$", sha512.New, RecommendedRoundsSHA512)
+	SHA1Crypter = New("$pbkdf2$", sha1.New, RecommendedRoundsSHA1)
+	SHA256Crypter = New("$pbkdf2-sha256$", sha256.New, RecommendedRoundsSHA256)
+	SHA512Crypter = New("$pbkdf2-sha512$", sha512.New, RecommendedRoundsSHA512)
 }
 
 type scheme struct {
