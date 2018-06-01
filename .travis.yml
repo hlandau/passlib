@@ -2,7 +2,7 @@ language: go
 os:
   - linux
 go:
-  - 1.4
+  - 1.10
   - tip
 sudo: false
 install:
