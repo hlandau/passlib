@@ -80,7 +80,7 @@ var test_sha512 = []test{
 }
 
 func TestPBKDF2_SHA1(t *testing.T) {
-	var crypter = Crypter1
+	var crypter = SHA1
 	var test_hashes = test_sha1
 
 	{
@@ -127,7 +127,7 @@ func TestPBKDF2_SHA1(t *testing.T) {
 }
 
 func TestPBKDF2_SHA256(t *testing.T) {
-	var crypter = Crypter256
+	var crypter = SHA256
 	var test_hashes = test_sha256
 
 	{
@@ -174,7 +174,7 @@ func TestPBKDF2_SHA256(t *testing.T) {
 }
 
 func TestPBKDF2_SHA512(t *testing.T) {
-	var crypter = Crypter512
+	var crypter = SHA512
 	var test_hashes = test_sha512
 
 	{
@@ -221,7 +221,7 @@ func TestPBKDF2_SHA512(t *testing.T) {
 }
 
 func BenchmarkPBDF2_SHA1_Hash(b *testing.B) {
-	var crypter = Crypter1
+	var crypter = SHA1
 	const passwd = "benchmarkMeThis!!"
 
 	for i := 0; i < b.N; i++ {
@@ -230,7 +230,7 @@ func BenchmarkPBDF2_SHA1_Hash(b *testing.B) {
 }
 
 func BenchmarkPBDF2_SHA1_Verify(b *testing.B) {
-	var crypter = Crypter1
+	var crypter = SHA1
 	const passwd = "benchmarkMeThis!!"
 	var hash, _ = crypter.Hash(passwd)
 
@@ -240,7 +240,7 @@ func BenchmarkPBDF2_SHA1_Verify(b *testing.B) {
 }
 
 func BenchmarkPBDF2_SHA256_Hash(b *testing.B) {
-	var crypter = Crypter256
+	var crypter = SHA256
 	const passwd = "benchmarkMeThis!!"
 
 	for i := 0; i < b.N; i++ {
@@ -249,7 +249,7 @@ func BenchmarkPBDF2_SHA256_Hash(b *testing.B) {
 }
 
 func BenchmarkPBDF2_SHA256_Verify(b *testing.B) {
-	var crypter = Crypter256
+	var crypter = SHA256
 	const passwd = "benchmarkMeThis!!"
 	var hash, _ = crypter.Hash(passwd)
 
@@ -259,7 +259,7 @@ func BenchmarkPBDF2_SHA256_Verify(b *testing.B) {
 }
 
 func BenchmarkPBDF2_SHA512_Hash(b *testing.B) {
-	var crypter = Crypter512
+	var crypter = SHA512
 	const passwd = "benchmarkMeThis!!"
 
 	for i := 0; i < b.N; i++ {
@@ -268,7 +268,7 @@ func BenchmarkPBDF2_SHA512_Hash(b *testing.B) {
 }
 
 func BenchmarkPBDF2_SHA512_Verify(b *testing.B) {
-	var crypter = Crypter512
+	var crypter = SHA512
 	const passwd = "benchmarkMeThis!!"
 	var hash, _ = crypter.Hash(passwd)
 

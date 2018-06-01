@@ -1,3 +1,7 @@
+// Package pbkdf2 implements a modular crypt format for PBKDF2-SHA1,
+// PBKDF2-SHA256 and PBKDF-SHA512.
+//
+// The format is the same as that used by Python's passlib and is compatible.
 package pbkdf2
 
 import (
@@ -12,19 +16,30 @@ import (
 	"strings"
 )
 
-// An implementation of Scheme implementing pkbdf2 variations.
+// An implementation of Scheme implementing a number of PBKDF2 modular crypt
+// formats used by Python's passlib ($pbkdf2$, $pbkdf2-sha256$,
+// $pbkdf2-sha512$).
 //
-// Uses RecommendedCost.
-var Crypter1 abstract.Scheme
-var Crypter256 abstract.Scheme
-var Crypter512 abstract.Scheme
+// Uses RecommendedRounds.
+//
+// WARNING: SHA1 should not be used for new applications under any
+// circumstances. It should be used for legacy compatibility only.
+var SHA1 abstract.Scheme
+var SHA256 abstract.Scheme
+var SHA512 abstract.Scheme
+
+const (
+	RecommendedRoundsSHA1   = 131000
+	RecommendedRoundsSHA256 = 29000
+	RecommendedRoundsSHA512 = 25000
+)
 
 const SaltLength = 16
 
 func init() {
-	Crypter1 = New("$pbkdf2$", sha1.New, 131000)
-	Crypter256 = New("$pbkdf2-sha256$", sha256.New, 29000)
-	Crypter512 = New("$pbkdf2-sha512$", sha512.New, 25000)
+	SHA1 = New("$pbkdf2$", sha1.New, RecommendedRoundsSHA1)
+	SHA256 = New("$pbkdf2-sha256$", sha256.New, RecommendedRoundsSHA256)
+	SHA512 = New("$pbkdf2-sha512$", sha512.New, RecommendedRoundsSHA512)
 }
 
 type scheme struct {

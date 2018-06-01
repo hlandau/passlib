@@ -28,10 +28,10 @@ var DefaultSchemes = []abstract.Scheme{
 	sha2crypt.Crypter256,
 	sha2crypt.Crypter512,
 	bcryptsha256.Crypter,
-	pbkdf2.Crypter512,
-	pbkdf2.Crypter256,
+	pbkdf2.SHA512,
+	pbkdf2.SHA256,
 	bcrypt.Crypter,
-	pbkdf2.Crypter1,
+	pbkdf2.SHA1,
 }
 
 // It is strongly recommended that you call this function like this before using passlib:
