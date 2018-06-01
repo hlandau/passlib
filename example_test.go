@@ -3,6 +3,8 @@ package passlib
 // User signup example.
 func ExampleHash_signup() {
 	// User signup example.
+	// NOTE: Call UseDefaults at application initialisation time to initialise
+	// passlib before using Hash() or Verify(). See func UseDefaults.
 
 	// ... signup code ...
 
@@ -24,6 +26,8 @@ func ExampleHash_signup() {
 // User login example.
 func ExampleVerify_login() {
 	// User login example.
+	// NOTE: Call UseDefaults at application initialisation time to initialise
+	// passlib before using Hash() or Verify(). See func UseDefaults.
 
 	// Get the password for the user we have stored in the database.
 	hash := getUserHashFromDatabase()

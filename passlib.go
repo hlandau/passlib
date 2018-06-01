@@ -1,8 +1,18 @@
 // Package passlib provides a simple password hashing and verification
 // interface abstracting multiple password hashing schemes.
 //
-// Most people need concern themselves only with the functions Hash
-// and Verify, which uses the default context and sensible defaults.
+// After initialisation, most people need concern themselves only with the
+// functions Hash and Verify, which uses the default context and sensible
+// defaults.
+//
+// Library Initialization
+//
+// You should initialise the library before using it with the following line.
+//
+//   // Call this at application startup.
+//   passlib.UseDefaults(passlib.Defaults20180601)
+//
+// See func UseDefaults for details.
 package passlib // import "gopkg.in/hlandau/passlib.v1"
 
 import (

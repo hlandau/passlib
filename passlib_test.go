@@ -66,7 +66,7 @@ func TestDefault(t *testing.T) {
 	}
 
 	// Now test new defaults.
-	UseDefaults(DefaultsVersion20180601)
+	UseDefaults(Defaults20180601)
 
 	newHash, err = Verify("foobar", "$argon2i$v=19$m=32768,t=4,p=4$c29tZXNhbHRzb21lYWxrdA$HcTlbOnOAzJ2dUrlgHnNwC0yallJ/Gl2NbAWqg4IukA")
 	if err != nil {
@@ -78,7 +78,7 @@ func TestDefault(t *testing.T) {
 	}
 
 	// Switch back.
-	UseDefaults(DefaultsVersion20160922)
+	UseDefaults(Defaults20160922)
 }
 
 func TestUpgrade(t *testing.T) {

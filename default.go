@@ -14,11 +14,17 @@ import (
 
 // This is the first and default set of defaults used by passlib. It prefers
 // scrypt-sha256. It is now obsolete.
-const DefaultsVersion20160922 = "20160922"
+const Defaults20160922 = "20160922"
 
 // This is the most up-to-date set of defaults preferred by passlib. It prefers
 // Argon2i. You must opt into it by calling UseDefaults at startup.
-const DefaultsVersion20180601 = "20180601"
+const Defaults20180601 = "20180601"
+
+// This value, when passed to UseDefaults, causes passlib to always use the
+// very latest set of defaults. DO NOT use this unless you are sure that
+// opportunistic hash upgrades will not cause breakage for your application
+// when future versions of passlib are released. See func UseDefaults.
+const DefaultsLatest = "latest"
 
 // Default schemes as of 2016-09-22.
 var defaultSchemes20160922 = []abstract.Scheme{
@@ -74,7 +80,7 @@ func init() {
 // where YYYYMMDD is a date. This will be used to select the preferred scheme
 // to use. If you do not call UseDefaults, the preferred scheme (the first item
 // in the default schemes list) current as of 2016-09-22 will always be used,
-// meaning that upgrade will not occur even when a better scheme is now
+// meaning that upgrade will not occur even though better schemes are now
 // available.
 //
 // Note that even if you don't call this function, new schemes will still be
@@ -104,7 +110,7 @@ func init() {
 // will always use the most preferred scheme. This is hazardous in a
 // multi-server environment.
 //
-// The constants beginning 'DefaultsVersion' in this package document dates
+// The constants beginning 'Defaults' in this package document dates
 // which are meaningful to this function. The constant values they are equal to
 // will never change, so there is no need to use them instead of string
 // literals, although you may if you wish; they are intended mainly as
@@ -112,7 +118,7 @@ func init() {
 //
 // Example for opting in to the latest set of defaults:
 //
-//   passlib.UseDefaults("20180601")
+//   passlib.UseDefaults(passlib.Defaults20180601)
 //
 func UseDefaults(date string) error {
 	if date == "latest" {
