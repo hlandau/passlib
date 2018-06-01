@@ -55,6 +55,18 @@ func TestDefault(t *testing.T) {
 	if newHash != "" {
 		t.Fatalf("unexpected upgrade")
 	}
+	newHash, err = Verify("foobar", "$s2$16384$8$1$qa9lVfhmTE8F2Jpwya9m7uoE$Q7dSPqhZQCLWpjniaz7RVm+xorpSAPTvOCP2uoZmoiI=")
+	//$argon2i$v=19$m=32768,t=4,p=4$c29tZXNhbHRzb21lYWxrdA$HcTlbOnOAzJ2dUrlgHnNwC0yallJ/Gl2NbAWqg4IukA")
+	if err != nil {
+		t.Fatalf("err verifying known good: %v", err)
+	}
+
+	if newHash != "" {
+		t.Fatalf("unexpected upgrade")
+	}
+
+	// Now test new defaults.
+	UseDefaults(DefaultsVersion20180601)
 
 	newHash, err = Verify("foobar", "$argon2i$v=19$m=32768,t=4,p=4$c29tZXNhbHRzb21lYWxrdA$HcTlbOnOAzJ2dUrlgHnNwC0yallJ/Gl2NbAWqg4IukA")
 	if err != nil {
@@ -64,6 +76,9 @@ func TestDefault(t *testing.T) {
 	if newHash != "" {
 		t.Fatalf("unexpected upgrade")
 	}
+
+	// Switch back.
+	UseDefaults(DefaultsVersion20160922)
 }
 
 func TestUpgrade(t *testing.T) {
