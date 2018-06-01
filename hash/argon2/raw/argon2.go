@@ -1,14 +1,12 @@
-// Package raw provides a raw implementation of the modular-crypt-wrapped scrypt primitive.
+// Package raw provides a raw implementation of the modular-crypt-wrapped Argon2i primitive.
 package raw
 
 import (
 	"encoding/base64"
 	"fmt"
+	"golang.org/x/crypto/argon2"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
-	"golang.org/x/crypto/argon2"
 )
 
 // The current recommended time value for interactive logins.
@@ -30,7 +28,6 @@ const RecommendedThreads uint8 = 4
 //
 // Returns an argon2 encoded hash.
 func Argon2(password string, salt []byte, time, memory uint32, threads uint8) string {
-
 	passwordb := []byte(password)
 
 	hash := argon2.Key(passwordb, salt, time, memory, threads, 32)
@@ -44,7 +41,30 @@ func Argon2(password string, salt []byte, time, memory uint32, threads uint8) st
 // Indicates that a password hash or stub is invalid.
 var ErrInvalidStub = fmt.Errorf("invalid argon2 password stub")
 
+// Indicates that a key-value pair in the configuration part is malformed.
 var ErrInvalidKeyValuePair = fmt.Errorf("invalid argon2 key-value pair")
+
+// Indicates that the version part had the wrong number of parameters.
+var ErrParseVersion = fmt.Errorf("version section has wrong number of parameters")
+
+// Indicates that the hash config part had the wrong number of parameters.
+var ErrParseConfig = fmt.Errorf("hash config section has wrong number of parameters")
+
+// Indicates that the version parameter ("v") was missing in the version part,
+// even though it is required.
+var ErrMissingVersion = fmt.Errorf("version parameter (v) is missing")
+
+// Indicates that the memory parameter ("m") was mossing in the hash config
+// part, even though it is required.
+var ErrMissingMemory = fmt.Errorf("memory parameter (m) is missing")
+
+// Indicates that the time parameter ("t") was mossing in the hash config part,
+// even though it is required.
+var ErrMissingTime = fmt.Errorf("time parameter (t) is missing")
+
+// Indicates that the parallelism parameter ("p") was mossing in the hash config
+// part, even though it is required.
+var ErrMissingParallelism = fmt.Errorf("parallelism parameter (p) is missing")
 
 // Parses an argon2 encoded hash.
 //
@@ -53,7 +73,7 @@ var ErrInvalidKeyValuePair = fmt.Errorf("invalid argon2 key-value pair")
 //   $argon2i$v=version$m=memory,t=time,p=threads$salt$hash   // hash
 //   $argon2i$v=version$m=memory,t=time,p=threads$salt        // stub
 //
-func Parse(stub string) (salt, hash []byte, version int, time, memory uint32, threads uint8, err error) {
+func Parse(stub string) (salt, hash []byte, version int, time, memory uint32, parallelism uint8, err error) {
 	if len(stub) < 26 || !strings.HasPrefix(stub, "$argon2i$") {
 		err = ErrInvalidStub
 		return
@@ -62,73 +82,79 @@ func Parse(stub string) (salt, hash []byte, version int, time, memory uint32, th
 	// $argon2i$  v=version$m=memory,t=time,p=threads$salt-base64$hash-base64
 	parts := strings.Split(stub[9:], "$")
 
-	if len(parts) < 3 {
+	// version-params$hash-config-params$salt[$hash]
+	if len(parts) < 3 || len(parts) > 4 {
 		err = ErrInvalidStub
 		return
 	}
 
+	// Parse the first configuration part, the version parameters.
 	versionParams, err := parseKeyValuePair(parts[0])
-
 	if err != nil {
 		return
 	}
 
+	// Must be exactly one parameter in the version part.
 	if len(versionParams) != 1 {
-		err = fmt.Errorf("expected %d version parameters, got %d", 1, len(versionParams))
+		err = ErrParseVersion
 		return
 	}
 
+	// It must be "v".
 	val, ok := versionParams["v"]
-
 	if !ok {
-		err = errors.New("version (v) parameter is missing")
+		err = ErrMissingVersion
 		return
 	}
 
 	version = int(val)
 
+	// Parse the second configuration part, the hash config parameters.
 	hashParams, err := parseKeyValuePair(parts[1])
-
 	if err != nil {
 		return
 	}
 
+	// It must have exactly three parameters.
 	if len(hashParams) != 3 {
-		err = fmt.Errorf("expected %d hash parameters, got %d", 3, len(hashParams))
+		err = ErrParseConfig
 		return
 	}
 
+	// Memory parameter.
 	val, ok = hashParams["m"]
-
 	if !ok {
-		err = errors.New("memory (m) parameter is missing")
+		err = ErrMissingMemory
 		return
 	}
 
 	memory = uint32(val)
 
+	// Time parameter.
 	val, ok = hashParams["t"]
-
 	if !ok {
-		err = errors.New("time (t) parameter is missing")
+		err = ErrMissingTime
 		return
 	}
 
 	time = uint32(val)
-	val, ok = hashParams["p"]
 
+	// Parallelism parameter.
+	val, ok = hashParams["p"]
 	if !ok {
-		err = errors.New("threads (p) parameter is missing")
+		err = ErrMissingParallelism
 		return
 	}
 
-	threads = uint8(val)
+	parallelism = uint8(val)
 
+	// Decode salt.
 	salt, err = base64.RawStdEncoding.DecodeString(parts[2])
 	if err != nil {
 		return
 	}
 
+	// Decode hash if present.
 	if len(parts) >= 4 {
 		hash, err = base64.RawStdEncoding.DecodeString(parts[3])
 	}
@@ -137,21 +163,18 @@ func Parse(stub string) (salt, hash []byte, version int, time, memory uint32, th
 }
 
 func parseKeyValuePair(pairs string) (result map[string]uint64, err error) {
-
 	result = map[string]uint64{}
 
 	parameterParts := strings.Split(pairs, ",")
 
 	for _, parameter := range parameterParts {
-		parts := strings.Split(parameter, "=")
-
+		parts := strings.SplitN(parameter, "=", 2)
 		if len(parts) != 2 {
 			err = ErrInvalidKeyValuePair
 			return
 		}
 
 		parsedi, err := strconv.ParseUint(parts[1], 10, 32)
-
 		if err != nil {
 			return result, err
 		}
