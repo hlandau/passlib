@@ -10,9 +10,16 @@ put into it, or with more support for obscure password formats.
 This is a skeleton of a port of passlib to Go. It dogmatically adopts the
 modular crypt format, which [passlib has excellent documentation for](https://pythonhosted.org/passlib/modular_crypt_format.html#modular-crypt-format).
 
-Currently, it supports sha256-crypt, sha512-crypt, scrypt-sha256, bcrypt and
-passlib's bcrypt-sha256 variant. By default, it will hash using scrypt-sha256
-and verify existing hashes using any of these schemes.
+Currently, it supports:
+
+  - sha256-crypt
+  - sha512-crypt
+  - scrypt-sha256
+  - bcrypt
+  - passlib's bcrypt-sha256 variant
+
+By default, it will hash using scrypt-sha256 and verify existing hashes using
+any of these schemes.
 
 Example Usage
 -------------
@@ -80,11 +87,6 @@ Since scrypt does not have a pre-existing modular crypt format standard, I made 
     $s2$N$r$p$salt$hash
 
 ...where `N`, `r` and `p` are the respective difficulty parameters to scrypt as positive decimal integers without leading zeroes, and `salt` and `hash` are base64-encoded binary strings. Note that the RFC 4648 base64 encoding is used (not the one used by sha256-crypt and sha512-crypt).
-
-TODO
-----
-
-  - PBKDF2
 
 Licence
 -------
