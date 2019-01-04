@@ -27,6 +27,11 @@ any of these schemes.
 
 Example Usage
 -------------
+
+```
+go get gopkg.in/hlandau/passlib.v1
+```
+
 There's a default context for ease of use. Most people need only concern
 themselves with the functions `Hash` and `Verify`:
 
