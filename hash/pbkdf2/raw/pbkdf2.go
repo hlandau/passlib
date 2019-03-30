@@ -7,7 +7,7 @@ import (
 
 const (
 	MinRounds = 1
-	MaxRounds = 0xffffffff // setting at 32-bit limit for now
+	MaxRounds = 0x7fffffff // setting at 32-bit signed integer limit for now
 )
 
 func Hash(password, salt []byte, rounds int, hf func() hash.Hash) (hash string) {
