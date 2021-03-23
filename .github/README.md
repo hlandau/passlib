@@ -1,7 +1,7 @@
 passlib for go
 ==============
 
-[![GoDoc](https://godoc.org/gopkg.in/hlandau/passlib.v1?status.svg)](https://godoc.org/gopkg.in/hlandau/passlib.v1) [![Build Status](https://travis-ci.org/hlandau/passlib.svg?branch=master)](https://travis-ci.org/hlandau/passlib)
+[![godocs.io](https://godocs.io/gopkg.in/hlandau/passlib.v1?status.svg)](https://godocs.io/gopkg.in/hlandau/passlib.v1) [![Build status](https://github.com/hlandau/passlib/actions/workflows/go.yml/badge.svg)](#) [![No modules](https://www.devever.net/~hl/f/no-modules2.svg) 100% modules-free.](https://www.devever.net/~hl/gomod)
 
 [Python's passlib](https://pythonhosted.org/passlib/) is quite an amazing
 library. I'm not sure there's a password library in existence with more thought
